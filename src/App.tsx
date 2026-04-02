@@ -50,7 +50,7 @@ export default function App() {
       <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-black/65 backdrop-blur">
         <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-4 md:px-8">
           <a href="#home" className="text-lg font-semibold tracking-wide text-amber-300">
-            Chaap Terminal
+            Chaap Terminal Jaipur
           </a>
           <ul className="hidden items-center gap-6 text-sm text-white/85 md:flex">
             {navItems.map((item) => (
