@@ -1,29 +1,28 @@
 name: Send to CI/CD Optimizer
 
 on:
-  workflow_run:
-    workflows: ["CI Pipeline"]
-    types: [completed]
+  push:
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   send-to-optimizer:
     runs-on: ubuntu-latest
     steps:
       - name: Send pipeline data to optimizer
-        env:
-          OPTIMIZER_BASE_URL: ${{ secrets.OPTIMIZER_BASE_URL }}
-          OPTIMIZER_API_KEY: ${{ secrets.OPTIMIZER_API_KEY }}
         run: |
-          curl -X POST "${OPTIMIZER_BASE_URL}/webhooks/github-actions" \
+          curl -X POST "${{ secrets.OPTIMIZER_BASE_URL }}/webhooks/github-actions" \
             -H "Content-Type: application/json" \
-            -H "X-API-Key: ${OPTIMIZER_API_KEY}" \
-            -H "X-Role: operator" \
+            -H "X-API-Key: ${{ secrets.OPTIMIZER_API_KEY }}" \
+            -H "X-Role: ${{ secrets.OPTIMIZER_ROLE }}" \
+            -H "X-GitHub-Delivery: gh-${{ github.run_id }}" \
             -d '{
               "repository": "${{ github.repository }}",
               "repository_id": "${{ github.repository_id }}",
-              "run_id": "${{ github.run_id }}",
               "branch": "${{ github.ref_name }}",
               "sha": "${{ github.sha }}",
+              "run_id": "${{ github.run_id }}",
+              "actor": "${{ github.actor }}",
               "workflow_run": {
                 "id": ${{ github.run_id }},
                 "head_branch": "${{ github.ref_name }}",
@@ -31,10 +30,9 @@ jobs:
                 "repository_id": "${{ github.repository_id }}"
               },
               "jobs": [
-                {"name": "install", "status": "completed", "duration_ms": 25000},
-                {"name": "lint",    "status": "completed", "duration_ms": 8000},
-                {"name": "test",    "status": "completed", "duration_ms": 45000},
-                {"name": "build",   "status": "completed", "duration_ms": 30000},
-                {"name": "deploy",  "status": "completed", "duration_ms": 15000}
+                {"name": "build",  "status": "completed", "duration_ms": 30000},
+                {"name": "test",   "status": "completed", "duration_ms": 45000},
+                {"name": "lint",   "status": "completed", "duration_ms": 8000},
+                {"name": "deploy", "status": "completed", "duration_ms": 15000}
               ]
             }'
